@@ -14,6 +14,11 @@ const (
 	ipMax uint32 = ^ipMin
 )
 
+var reserved = []*net.IPNet{
+	parseCIDR("0.0.0.0/8"),
+	parseCIDR("127.0.0.0/8"),
+}
+
 func ipv4ToUint32(ip []byte) uint32 {
 	return binary.BigEndian.Uint32(net.IP(ip).To4())
 }
@@ -34,6 +39,21 @@ func sortCIDRs(cidrs []*net.IPNet) {
 	})
 }
 
+func parseCIDR(cidr string) *net.IPNet {
+	_, res, _ := net.ParseCIDR(cidr)
+	return res
+}
+
+func skipIP(cidr *net.IPNet) bool {
+	for _, res := range reserved {
+		last := uint32ToIPv4(lastAddress(res))
+		if cidr.Contains(last) || cidr.Contains(res.IP) {
+			return true
+		}
+	}
+	return false
+}
+
 func findPrev(cidr *net.IPNet) []*net.IPNet {
 	var cidrs []*net.IPNet
 	firstIP := ipv4ToUint32(cidr.IP)
@@ -45,11 +65,16 @@ func findPrev(cidr *net.IPNet) []*net.IPNet {
 				IP:   uint32ToIPv4(addr),
 				Mask: net.IPMask(uint32ToIPv4(^hostmask)),
 			}
-			cidrs = append(cidrs, cidr)
+			if skipIP(cidr) {
+				cidrs = append(cidrs, findNext(cidr)...)
+			} else {
+				cidrs = append(cidrs, cidr)
+			}
 			addr = v + 1
 		}
 		hostmask = hostmask >> 1
 	}
+
 	return cidrs
 }
 
@@ -64,11 +89,16 @@ func findNext(cidr *net.IPNet) []*net.IPNet {
 				IP:   uint32ToIPv4(v),
 				Mask: net.IPMask(uint32ToIPv4(^hostmask)),
 			}
-			cidrs = append(cidrs, cidr)
+			if skipIP(cidr) {
+				cidrs = append(cidrs, findPrev(cidr)...)
+			} else {
+				cidrs = append(cidrs, cidr)
+			}
 			addr = v - 1
 		}
 		hostmask = hostmask >> 1
 	}
+
 	return cidrs
 }
 
