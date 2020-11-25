@@ -5,7 +5,7 @@ import (
 	"net"
 	"sort"
 
-	"github.com/EvilSuperstars/go-cidrman"
+	"github.com/IBM/netaddr"
 )
 
 const (
@@ -94,7 +94,10 @@ func InverseCIDRs(cidrs []*net.IPNet) []*net.IPNet {
 		t = append(t, inverseCIDR(cidr)...)
 	}
 
-	res, _ := cidrman.MergeIPNets(t)
+	ipset := &netaddr.IPSet{}
+	for _, v := range t {
+		ipset.InsertNet(v)
+	}
 
-	return res
+	return ipset.GetNetworks()
 }

@@ -1,2 +1,4 @@
 github.com/EvilSuperstars/go-cidrman v0.0.0-20190607145828-28e79e32899a h1:D9u6wYxZ2bPjDwYYq25y+n6ZmOKj/TsAMGSl4xL1yQI=
 github.com/EvilSuperstars/go-cidrman v0.0.0-20190607145828-28e79e32899a/go.mod h1:pzTfWeRUe2RpUHYF4s8PfLt7C3jnxg62RX10Eh9myYY=
+github.com/IBM/netaddr v1.4.0 h1:6T+fAXurIdgA9+nVlehOOkhhxmzU2MTxtok7qNldDVo=
+github.com/IBM/netaddr v1.4.0/go.mod h1:eXOsTXDZemcAXuuddrfHcWdA0on76PJwaH37JnS5PKE=
